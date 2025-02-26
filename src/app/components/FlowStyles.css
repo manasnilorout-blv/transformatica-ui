@@ -1,0 +1,45 @@
+/* ReactFlow Dark Theme Styles */
+.react-flow-dark-theme .react-flow__node {
+  color: #f3f4f6;
+  background-color: #1f2937;
+  border-color: #374151;
+}
+
+.react-flow-dark-theme .react-flow__handle {
+  background-color: #3b82f6;
+  border-color: #1f2937;
+}
+
+.react-flow-dark-theme .react-flow__edge path {
+  stroke: #6b7280;
+}
+
+.react-flow-dark-theme .react-flow__edge.selected path,
+.react-flow-dark-theme .react-flow__edge:focus path,
+.react-flow-dark-theme .react-flow__edge:hover path {
+  stroke: #3b82f6;
+}
+
+.react-flow-dark-theme .react-flow__attribution {
+  color: #9ca3af;
+  background-color: rgba(31, 41, 55, 0.8);
+}
+
+.react-flow-dark-theme .react-flow__controls button {
+  background-color: #1f2937;
+  border-color: #374151;
+  color: #d1d5db;
+}
+
+.react-flow-dark-theme .react-flow__controls button:hover {
+  background-color: #374151;
+}
+
+.react-flow-dark-theme .react-flow__minimap {
+  background-color: #111827;
+}
+
+/* Prevent text selection during resize */
+.resize-dragging {
+  user-select: none;
+} 

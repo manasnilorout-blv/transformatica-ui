@@ -16,15 +16,17 @@ import {
   useEdgesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
+import './FlowStyles.css';
 import { 
   ArrowUpOnSquareIcon, 
   Cog6ToothIcon, 
   TableCellsIcon 
 } from '@heroicons/react/24/solid';
+import { initialNodes, initialEdges } from './mockData';
 
 type NodeType = 'source' | 'transform' | 'target';
 
-interface CustomNodeData extends Record<string, unknown> {
+export interface CustomNodeData extends Record<string, unknown> {
   label: string;
   type: NodeType;
   id: string;
@@ -34,12 +36,16 @@ interface CustomNodeData extends Record<string, unknown> {
 
 const TransformNode = ({ data }: NodeProps<CustomNodeData>) => {
   const { theme } = useTheme();
+  const nodeData = data.data;
   return (
-    <div className={`px-4 py-2 shadow-lg rounded-md ${
-      theme === 'dark' 
-        ? 'bg-gray-800 border-2 border-gray-700 text-white' 
-        : 'bg-white border-2 border-gray-200 text-gray-800'
-    }`}>
+    <div 
+      className={`px-4 py-2 shadow-lg rounded-md ${
+        theme === 'dark' 
+          ? 'bg-gray-800 border-2 border-gray-700 text-white' 
+          : 'bg-white border-2 border-gray-200 text-gray-800'
+      }`}
+      title={nodeData?.description || 'No description available'}
+    >
       <Handle type="target" position={Position.Left} />
       <div className="flex items-center">
         <div className={`w-6 h-6 rounded-full ${
@@ -57,7 +63,7 @@ const TransformNode = ({ data }: NodeProps<CustomNodeData>) => {
         </div>
         <span className={`ml-2 text-xs font-medium ${
           theme === 'dark' ? 'text-gray-200' : 'text-gray-800'
-        }`}>{data.data?.name || 'Unnamed Node'}</span>
+        }`}>{nodeData?.name || 'Unnamed Node'}</span>
       </div>
       <Handle type="source" position={Position.Right} />
     </div>
@@ -68,76 +74,6 @@ const TransformNode = ({ data }: NodeProps<CustomNodeData>) => {
 const nodeTypes: { [key: string]: React.FC<any> } = {
   transformNode: TransformNode,
 };
-
-const initialNodes: Node<CustomNodeData>[] = [
-  // Main source
-  {
-    id: '1',
-    type: 'transformNode',
-    position: { x: 100, y: 200 },
-    data: { label: 'Source', type: 'source', id: '1', position: { x: 100, y: 200 }, data: { name: 'Main Source' } },
-  },
-  // First branch
-  {
-    id: '2',
-    type: 'transformNode',
-    position: { x: 300, y: 100 },
-    data: { label: 'Transform', type: 'transform', id: '2', position: { x: 300, y: 100 }, data: { name: 'Transform A-1' } },
-  },
-  {
-    id: '3',
-    type: 'transformNode',
-    position: { x: 500, y: 100 },
-    data: { label: 'Transform', type: 'transform', id: '3', position: { x: 500, y: 100 }, data: { name: 'Transform A-2' } },
-  },
-  {
-    id: '4',
-    type: 'transformNode',
-    position: { x: 700, y: 100 },
-    data: { label: 'Target', type: 'target', id: '4', position: { x: 700, y: 100 }, data: { name: 'Target A' } },
-  },
-  // Second branch
-  {
-    id: '5',
-    type: 'transformNode',
-    position: { x: 300, y: 300 },
-    data: { label: 'Transform', type: 'transform', id: '5', position: { x: 300, y: 300 }, data: { name: 'Transform B-1' } },
-  },
-  {
-    id: '6',
-    type: 'transformNode',
-    position: { x: 500, y: 300 },
-    data: { label: 'Target', type: 'target', id: '6', position: { x: 500, y: 300 }, data: { name: 'Target B' } },
-  },
-  // Third branch (from node 5)
-  {
-    id: '7',
-    type: 'transformNode',
-    position: { x: 500, y: 400 },
-    data: { label: 'Transform', type: 'transform', id: '7', position: { x: 500, y: 400 }, data: { name: 'Transform C-1' } },
-  },
-  {
-    id: '8',
-    type: 'transformNode',
-    position: { x: 700, y: 400 },
-    data: { label: 'Target', type: 'target', id: '8', position: { x: 700, y: 400 }, data: { name: 'Target C' } },
-  },
-];
-
-const initialEdges: Edge[] = [
-  // First branch
-  { id: 'e1-2', source: '1', target: '2' },
-  { id: 'e2-3', source: '2', target: '3' },
-  { id: 'e3-4', source: '3', target: '4' },
-  
-  // Second branch
-  { id: 'e1-5', source: '1', target: '5' },
-  { id: 'e5-6', source: '5', target: '6' },
-  
-  // Third branch (from node 5)
-  { id: 'e5-7', source: '5', target: '7' },
-  { id: 'e7-8', source: '7', target: '8' },
-];
 
 interface FlowCanvasProps {
   onNodeSelect?: (node: Node<CustomNodeData> | null) => void;
@@ -152,6 +88,21 @@ export default function FlowCanvas({ onNodeSelect }: FlowCanvasProps) {
     onNodeSelect?.(node);
   }, [onNodeSelect]);
 
+  // Theme-based styles for ReactFlow components
+  const controlsStyle = {
+    backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+    borderColor: theme === 'dark' ? '#374151' : '#e5e7eb',
+    color: theme === 'dark' ? '#d1d5db' : '#4b5563',
+    boxShadow: theme === 'dark' ? '0 4px 6px -1px rgba(0, 0, 0, 0.2)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+  };
+
+  const minimapStyle = {
+    backgroundColor: theme === 'dark' ? '#111827' : '#f9fafb',
+    borderColor: theme === 'dark' ? '#374151' : '#e5e7eb',
+    maskColor: theme === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.2)',
+    border: theme === 'dark' ? '1px solid #374151' : '1px solid #e5e7eb',
+  };
+
   return (
     <div className={`w-full h-full ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
       <ReactFlow
@@ -162,10 +113,17 @@ export default function FlowCanvas({ onNodeSelect }: FlowCanvasProps) {
         onNodeClick={onNodeClick}
         nodeTypes={nodeTypes}
         fitView
+        proOptions={{ hideAttribution: true }}
+        className={theme === 'dark' ? 'react-flow-dark-theme' : ''}
       >
-        <Background />
-        <Controls />
-        <MiniMap />
+        <Background color={theme === 'dark' ? '#374151' : '#e5e7eb'} gap={16} />
+        <Controls position="top-right" style={controlsStyle} />
+        <MiniMap 
+          position="bottom-right" 
+          style={minimapStyle}
+          nodeColor={theme === 'dark' ? '#4b5563' : '#d1d5db'}
+          maskColor={theme === 'dark' ? 'rgba(17, 24, 39, 0.7)' : 'rgba(249, 250, 251, 0.7)'}
+        />
       </ReactFlow>
     </div>
   );

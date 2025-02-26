@@ -12,7 +12,7 @@ const navigation = [
 export default function Sidebar() {
   const { theme, toggleTheme } = useTheme();
   return (
-    <div className={`flex h-full w-24 flex-col ${theme === 'dark' ? 'bg-gray-900' : 'bg-blue-50'}`}>
+    <div className={`fixed h-full w-24 flex-col z-20 flex ${theme === 'dark' ? 'bg-gray-900' : 'bg-blue-50'}`}>
       <div className="flex flex-1 flex-col overflow-y-auto">
         <nav className="flex-1 space-y-1 px-2 py-4">
           {navigation.map((item) => (
@@ -29,23 +29,23 @@ export default function Sidebar() {
             </button>
           ))}
         </nav>
-        <div className="flex justify-center pb-4">
-          <button
-            onClick={toggleTheme}
-            className={`rounded-md p-2 ${
-              theme === 'dark' 
-                ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
-                : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
-            } transition-colors duration-200`}
-            aria-label="Toggle theme"
-          >
-            {theme === 'dark' ? (
-              <SunIcon className="h-6 w-6" aria-hidden="true" />
-            ) : (
-              <MoonIcon className="h-6 w-6" aria-hidden="true" />
-            )}
-          </button>
-        </div>
+      </div>
+      <div className="flex justify-center pb-4 mt-auto">
+        <button
+          onClick={toggleTheme}
+          className={`rounded-md p-2 ${
+            theme === 'dark' 
+              ? 'bg-gray-800 text-yellow-400 hover:bg-gray-700' 
+              : 'bg-blue-100 text-blue-800 hover:bg-blue-200'
+          } transition-colors duration-200`}
+          aria-label="Toggle theme"
+        >
+          {theme === 'dark' ? (
+            <SunIcon className="h-6 w-6" aria-hidden="true" />
+          ) : (
+            <MoonIcon className="h-6 w-6" aria-hidden="true" />
+          )}
+        </button>
       </div>
     </div>
   );

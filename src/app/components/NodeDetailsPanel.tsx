@@ -1,15 +1,11 @@
 'use client';
 
-import { Fragment } from 'react';
+import { Fragment, useState, useEffect, useRef } from 'react';
 import { useTheme } from '../context/ThemeContext';
 import { Dialog, Transition, Tab } from '@headlessui/react';
 import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Node } from '@xyflow/react';
-
-type CustomNodeData = {
-  label: string;
-  type: 'source' | 'transform' | 'target';
-};
+import { CustomNodeData } from './FlowCanvas';
 
 interface NodeDetailsPanelProps {
   node: Node<CustomNodeData> | null;
@@ -18,15 +14,59 @@ interface NodeDetailsPanelProps {
 
 export default function NodeDetailsPanel({ node, onClose }: NodeDetailsPanelProps) {
   const { theme } = useTheme();
+  const nodeData = node?.data;
+  const [panelHeight, setPanelHeight] = useState(25);
+  const [isDragging, setIsDragging] = useState(false);
+  const dragHandleRef = useRef<HTMLDivElement>(null);
+  
+  // Setup drag handlers
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isDragging) return;
+      
+      // Calculate distance from bottom of screen (in vh)
+      const viewportHeight = window.innerHeight;
+      const mouseDistanceFromBottom = viewportHeight - e.clientY;
+      const heightInVh = (mouseDistanceFromBottom / viewportHeight) * 100;
+      
+      // Clamp between 15vh and 90vh
+      const newHeight = Math.min(Math.max(heightInVh, 15), 90);
+      setPanelHeight(newHeight);
+    };
+    
+    const handleMouseUp = () => {
+      setIsDragging(false);
+    };
+    
+    if (isDragging) {
+      document.addEventListener('mousemove', handleMouseMove);
+      document.addEventListener('mouseup', handleMouseUp);
+      
+      // Add a class to the body to prevent text selection during resize
+      document.body.classList.add('resize-dragging');
+    }
+    
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove);
+      document.removeEventListener('mouseup', handleMouseUp);
+      document.body.classList.remove('resize-dragging');
+    };
+  }, [isDragging]);
+  
+  const handleDragStart = (e: React.MouseEvent) => {
+    e.preventDefault();
+    setIsDragging(true);
+  };
+
   const tabs = [
     { name: 'Properties', content: 'Properties content here' },
-    { name: 'Mapping', content: 'Mapping content here' },
+    { name: 'SQL', content: nodeData?.data?.metadata?.sql || 'No SQL available' },
     { name: 'Preview', content: 'Preview content here' },
   ];
 
   return (
     <Transition.Root show={!!node} as={Fragment}>
-      <Dialog as="div" className="relative z-10" onClose={onClose}>
+      <Dialog as="div" className="relative z-30" onClose={onClose}>
         <Transition.Child
           as={Fragment}
           enter="ease-in-out duration-500"
@@ -36,12 +76,15 @@ export default function NodeDetailsPanel({ node, onClose }: NodeDetailsPanelProp
           leaveFrom="opacity-100"
           leaveTo="opacity-0"
         >
-          <div className="fixed inset-0 bg-gray-500 bg-opacity-75 transition-opacity" />
+          <div className="fixed right-0 top-0 left-24 bottom-0 bg-gray-500 bg-opacity-75 transition-opacity" />
         </Transition.Child>
 
-        <div className="fixed inset-0 overflow-hidden">
-          <div className="absolute inset-0 overflow-hidden">
-            <div className="pointer-events-none fixed inset-x-0 bottom-0 flex max-h-[70vh] transform transition-all">
+        <div className="fixed right-0 top-0 left-24 bottom-0 overflow-hidden">
+          <div className="absolute right-0 left-0 overflow-hidden">
+            <div 
+              className="pointer-events-none fixed right-0 left-24 bottom-0 flex transform"
+              style={{ height: `${panelHeight}vh` }}
+            >
               <Transition.Child
                 as={Fragment}
                 enter="transform transition ease-in-out duration-500"
@@ -52,9 +95,20 @@ export default function NodeDetailsPanel({ node, onClose }: NodeDetailsPanelProp
                 leaveTo="translate-y-full"
               >
                 <Dialog.Panel className="pointer-events-auto w-full">
-                  <div className={`flex h-full flex-col overflow-y-auto shadow-xl ${
-                    theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
-                  }`}>
+                  <div 
+                    className={`flex h-full flex-col overflow-y-auto shadow-xl ${
+                      theme === 'dark' ? 'bg-gray-800 text-white' : 'bg-white text-gray-900'
+                    }`}
+                  >
+                    <div 
+                      ref={dragHandleRef}
+                      className={`h-2 w-full cursor-ns-resize flex items-center justify-center ${
+                        theme === 'dark' ? 'hover:bg-gray-600' : 'hover:bg-gray-200'
+                      } ${isDragging ? (theme === 'dark' ? 'bg-gray-600' : 'bg-gray-200') : ''}`}
+                      onMouseDown={handleDragStart}
+                    >
+                      <div className={`w-10 h-1 rounded-full ${theme === 'dark' ? 'bg-gray-500' : 'bg-gray-300'}`} />
+                    </div>
                     <div className="px-4 py-6 sm:px-6">
                       <div className="flex items-start justify-between">
                         <Dialog.Title className={`text-base font-semibold leading-6 ${
