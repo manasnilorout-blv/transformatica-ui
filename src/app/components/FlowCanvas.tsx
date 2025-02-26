@@ -5,7 +5,6 @@ import { useTheme } from '../context/ThemeContext';
 import { 
   ReactFlow, 
   Node,
-  Edge,
   Controls,
   Background,
   MiniMap,
