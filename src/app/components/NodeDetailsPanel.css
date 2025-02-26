@@ -285,3 +285,85 @@
 .resize-dragging {
   user-select: none;
 }
+
+/* SQL Editor Styles */
+.sql-editor-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  border-radius: 0.375rem;
+  overflow: hidden;
+}
+
+.sql-editor-header {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0.5rem;
+  border-bottom: 1px solid;
+}
+
+.sql-editor-header-dark {
+  background-color: #1f2937; /* bg-gray-800 */
+  border-color: #374151; /* border-gray-700 */
+}
+
+.sql-editor-header-light {
+  background-color: #f3f4f6; /* bg-gray-100 */
+  border-color: #e5e7eb; /* border-gray-200 */
+}
+
+.sql-editor-content {
+  flex: 1;
+  overflow: auto;
+  height: calc(100% - 2.5rem);
+}
+
+.tidy-button {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  border-radius: 0.25rem;
+  transition: all 0.2s;
+}
+
+.tidy-button-dark {
+  background-color: #374151; /* bg-gray-700 */
+  color: #d1d5db; /* text-gray-300 */
+  border: 1px solid #4b5563; /* border-gray-600 */
+}
+
+.tidy-button-dark:hover {
+  background-color: #4b5563; /* hover:bg-gray-600 */
+}
+
+.tidy-button-light {
+  background-color: #ffffff; /* bg-white */
+  color: #4b5563; /* text-gray-600 */
+  border: 1px solid #d1d5db; /* border-gray-300 */
+}
+
+.tidy-button-light:hover {
+  background-color: #f3f4f6; /* hover:bg-gray-100 */
+}
+
+/* Override CodeMirror styles for better integration */
+.cm-editor {
+  height: 100% !important;
+}
+
+.cm-editor.cm-focused {
+  outline: none !important;
+}
+
+/* Dark theme overrides */
+.cm-theme-dark .cm-gutters {
+  background-color: #1f2937 !important; /* bg-gray-800 */
+  border-right: 1px solid #374151 !important; /* border-gray-700 */
+}
+
+/* Light theme overrides */
+.cm-theme-light .cm-gutters {
+  background-color: #f9fafb !important; /* bg-gray-50 */
+  border-right: 1px solid #e5e7eb !important; /* border-gray-200 */
+}

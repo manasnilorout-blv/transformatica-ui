@@ -7,11 +7,64 @@ import { XMarkIcon } from '@heroicons/react/24/outline';
 import { Node } from '@xyflow/react';
 import { CustomNodeData } from './FlowCanvas';
 import './NodeDetailsPanel.css';
+import CodeMirror from '@uiw/react-codemirror';
+import { sql } from '@codemirror/lang-sql';
 
 interface NodeDetailsPanelProps {
   node: Node<CustomNodeData> | null;
   onClose: () => void;
 }
+
+interface SQLEditorProps {
+  sqlCode: string;
+  theme: string;
+}
+
+const SQLEditor = ({ sqlCode, theme }: SQLEditorProps) => {
+  const [isTidy, setIsTidy] = useState(false);
+  
+  // Function to format SQL code (simple implementation)
+  const formatSQL = (sql: string): string => {
+    if (!sql) return '';
+    
+    // This is a simple formatting - in a real app, you might want to use a proper SQL formatter
+    return sql
+      .replace(/\s+/g, ' ')
+      .replace(/\s*,\s*/g, ', ')
+      .replace(/\s*;\s*/g, ';\n')
+      .replace(/\s*(\()\s*/g, ' $1')
+      .replace(/\s*(\))\s*/g, '$1 ')
+      .replace(/(SELECT|FROM|WHERE|GROUP BY|ORDER BY|HAVING|JOIN|LEFT JOIN|RIGHT JOIN|INNER JOIN|OUTER JOIN|UNION|CREATE|ALTER|DROP|INSERT|UPDATE|DELETE)/gi, '\n$1')
+      .replace(/\n\s+/g, '\n');
+  };
+  
+  return (
+    <div className="sql-editor-container">
+      <div className={`sql-editor-header ${theme === 'dark' ? 'sql-editor-header-dark' : 'sql-editor-header-light'}`}>
+        <button 
+          onClick={() => setIsTidy(!isTidy)} 
+          className={`tidy-button ${theme === 'dark' ? 'tidy-button-dark' : 'tidy-button-light'}`}
+        >
+          {isTidy ? 'Raw' : 'Tidy'}
+        </button>
+      </div>
+      <div className="sql-editor-content">
+        <CodeMirror
+          value={isTidy ? formatSQL(sqlCode) : sqlCode}
+          height="100%"
+          extensions={[sql()]}
+          theme={theme === 'dark' ? 'dark' : 'light'}
+          editable={false}
+          basicSetup={{
+            lineNumbers: true,
+            highlightActiveLine: false,
+            foldGutter: true,
+          }}
+        />
+      </div>
+    </div>
+  );
+};
 
 export default function NodeDetailsPanel({ node, onClose }: NodeDetailsPanelProps) {
   const { theme } = useTheme();
@@ -61,7 +114,13 @@ export default function NodeDetailsPanel({ node, onClose }: NodeDetailsPanelProp
 
   const tabs = [
     { name: 'Properties', content: 'Properties content here' },
-    { name: 'SQL', content: nodeData?.data?.metadata?.sql || 'No SQL available' },
+    { 
+      name: 'SQL', 
+      content: <SQLEditor 
+                sqlCode={nodeData?.data?.metadata?.sql || 'No SQL available'} 
+                theme={theme} 
+               /> 
+    },
     { name: 'Preview', content: 'Preview content here' },
   ];
 
