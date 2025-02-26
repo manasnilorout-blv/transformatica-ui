@@ -2,8 +2,8 @@
 
 import { useCallback } from 'react';
 import { useTheme } from '../context/ThemeContext';
-import { 
-  ReactFlow, 
+import {
+  ReactFlow,
   Node,
   Controls,
   Background,
@@ -15,11 +15,11 @@ import {
   useEdgesState,
 } from '@xyflow/react';
 import '@xyflow/react/dist/style.css';
-import './FlowStyles.css';
-import { 
-  ArrowUpOnSquareIcon, 
-  Cog6ToothIcon, 
-  TableCellsIcon 
+import './FlowCanvas.css';
+import {
+  ArrowUpOnSquareIcon,
+  Cog6ToothIcon,
+  TableCellsIcon
 } from '@heroicons/react/24/solid';
 import { initialNodes, initialEdges } from './mockData';
 
@@ -37,40 +37,29 @@ const TransformNode = ({ data }: NodeProps<CustomNodeData>) => {
   const { theme } = useTheme();
   const nodeData = data.data;
   return (
-    <div 
-      className={`px-4 py-2 shadow-lg rounded-md ${
-        theme === 'dark' 
-          ? 'bg-gray-800 border-2 border-gray-700 text-white' 
-          : 'bg-white border-2 border-gray-200 text-gray-800'
-      }`}
+    <div
+      className={`transform-node ${theme === 'dark' ? 'transform-node-dark' : 'transform-node-light'}`}
       title={nodeData?.description || 'No description available'}
     >
       <Handle type="target" position={Position.Left} />
-      <div className="flex items-center">
-        <div className={`w-6 h-6 rounded-full ${
-          theme === 'dark' ? 'bg-blue-900' : 'bg-blue-100'
-        } flex items-center justify-center`}>
-          {data.type === 'source' && <ArrowUpOnSquareIcon className={`h-4 w-4 ${
-            theme === 'dark' ? 'text-blue-400' : 'text-blue-600'
-          }`} />}
-          {data.type === 'transform' && <Cog6ToothIcon className={`h-4 w-4 ${
-            theme === 'dark' ? 'text-blue-400' : 'text-blue-600'
-          }`} />}
-          {data.type === 'target' && <TableCellsIcon className={`h-4 w-4 ${
-            theme === 'dark' ? 'text-blue-400' : 'text-blue-600'
-          }`} />}
+      <div className="node-icon-wrapper">
+        <div className={`node-icon-container ${theme === 'dark' ? 'node-icon-container-dark' : 'node-icon-container-light'}`}>
+          {data.type === 'source' && <ArrowUpOnSquareIcon className={`node-icon ${theme === 'dark' ? 'node-icon-dark' : 'node-icon-light'}`} />}
+          {data.type === 'transform' && <Cog6ToothIcon className={`node-icon ${theme === 'dark' ? 'node-icon-dark' : 'node-icon-light'}`} />}
+          {data.type === 'target' && <TableCellsIcon className={`node-icon ${theme === 'dark' ? 'node-icon-dark' : 'node-icon-light'}`} />}
         </div>
-        <span className={`ml-2 text-xs font-medium ${
-          theme === 'dark' ? 'text-gray-200' : 'text-gray-800'
-        }`}>{nodeData?.name || 'Unnamed Node'}</span>
+        <span className={`node-label ${theme === 'dark' ? 'node-label-dark' : 'node-label-light'}`}>
+          {nodeData?.name || 'Unnamed Node'}
+        </span>
       </div>
       <Handle type="source" position={Position.Right} />
     </div>
   );
 };
 
+// Need to use any here for the node types
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-const nodeTypes: { [key: string]: React.FC<any> } = {
+const nodeTypes: Record<string, React.ComponentType<any>> = {
   transformNode: TransformNode,
 };
 
@@ -87,23 +76,8 @@ export default function FlowCanvas({ onNodeSelect }: FlowCanvasProps) {
     onNodeSelect?.(node);
   }, [onNodeSelect]);
 
-  // Theme-based styles for ReactFlow components
-  const controlsStyle = {
-    backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
-    borderColor: theme === 'dark' ? '#374151' : '#e5e7eb',
-    color: theme === 'dark' ? '#d1d5db' : '#4b5563',
-    boxShadow: theme === 'dark' ? '0 4px 6px -1px rgba(0, 0, 0, 0.2)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
-  };
-
-  const minimapStyle = {
-    backgroundColor: theme === 'dark' ? '#111827' : '#f9fafb',
-    borderColor: theme === 'dark' ? '#374151' : '#e5e7eb',
-    maskColor: theme === 'dark' ? 'rgba(0, 0, 0, 0.7)' : 'rgba(0, 0, 0, 0.2)',
-    border: theme === 'dark' ? '1px solid #374151' : '1px solid #e5e7eb',
-  };
-
   return (
-    <div className={`w-full h-full ${theme === 'dark' ? 'bg-gray-900' : 'bg-gray-50'}`}>
+    <div className={`flow-canvas ${theme === 'dark' ? 'flow-canvas-dark' : 'flow-canvas-light'}`}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -116,10 +90,18 @@ export default function FlowCanvas({ onNodeSelect }: FlowCanvasProps) {
         className={theme === 'dark' ? 'react-flow-dark-theme' : ''}
       >
         <Background color={theme === 'dark' ? '#374151' : '#e5e7eb'} gap={16} />
-        <Controls position="top-right" style={controlsStyle} />
-        <MiniMap 
-          position="bottom-right" 
-          style={minimapStyle}
+        <Controls 
+          position="top-right" 
+          style={{
+            backgroundColor: theme === 'dark' ? '#1f2937' : '#ffffff',
+            borderColor: theme === 'dark' ? '#374151' : '#e5e7eb',
+            color: theme === 'dark' ? '#d1d5db' : '#4b5563',
+            boxShadow: theme === 'dark' ? '0 4px 6px -1px rgba(0, 0, 0, 0.2)' : '0 4px 6px -1px rgba(0, 0, 0, 0.1)',
+          }}
+        />
+        <MiniMap
+          position="bottom-right"
+          className={theme === 'dark' ? 'minimap-dark' : 'minimap-light'}
           nodeColor={theme === 'dark' ? '#4b5563' : '#d1d5db'}
           maskColor={theme === 'dark' ? 'rgba(17, 24, 39, 0.7)' : 'rgba(249, 250, 251, 0.7)'}
         />
